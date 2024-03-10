@@ -1,7 +1,7 @@
-import { Controller, Get, Param, Post, Body, Put, Delete } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Put, Delete, HttpException, HttpCode } from '@nestjs/common';
 import { CreateUserDto, UpdatePasswordDto } from '../dto/users.dto';
 import { UsersService } from '../services/users.service';
-import { User } from '../interfaces/user.interface';
+import { User, UserResponse } from '../interfaces/user.interface';
 
 @Controller('users')
 export class UsersController {
@@ -14,21 +14,38 @@ export class UsersController {
 
     @Get(':id')
     async findById(@Param('id') id: string) {
-        return this.usersService.findByUserId(id);
+        const userResponse: UserResponse = this.usersService.findByUserId(id);
+        if (userResponse.isError) {
+            throw new HttpException(userResponse.errorMessage, userResponse.statusCode);
+        }
+
+        return userResponse.data;
     }
 
     @Post()
     async create(@Body() createUserDto: CreateUserDto) {
-        return this.usersService.createUser(createUserDto);
+        const userResponse: UserResponse = this.usersService.createUser(createUserDto);
+        if (userResponse.isError) {
+            throw new HttpException(userResponse.errorMessage, userResponse.statusCode);
+        }
     }
 
     @Put(':id')
     async update(@Param('id') id: string, @Body() updatePasswordDto: UpdatePasswordDto) {
-        return this.usersService.updateUserPassword(id, updatePasswordDto);
+        const userResponse: UserResponse = this.usersService.updateUserPassword(id, updatePasswordDto);
+        if (userResponse.isError) {
+            throw new HttpException(userResponse.errorMessage, userResponse.statusCode);
+        }
+
+        return userResponse.data;
     }
 
     @Delete(':id')
+    @HttpCode(204)
     async deleteUser(@Param('id') id: string) {
-        return this.usersService.deleteUser(id);
+        const userResponse: UserResponse = this.usersService.deleteUser(id);
+        if (userResponse.isError) {
+            throw new HttpException(userResponse.errorMessage, userResponse.statusCode);
+        }
     }
 }

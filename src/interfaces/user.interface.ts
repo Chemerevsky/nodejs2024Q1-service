@@ -6,3 +6,10 @@ export interface User {
     createdAt: number; // timestamp of creation
     updatedAt: number; // timestamp of last update
 }
+
+export interface UserResponse {
+    isError: boolean,
+    data?: User,
+    errorMessage?: string,
+    statusCode?: number
+}

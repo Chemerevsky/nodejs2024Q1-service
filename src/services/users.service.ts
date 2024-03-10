@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { User } from '../interfaces/user.interface';
+import { Injectable, HttpStatus } from '@nestjs/common';
+import { User, UserResponse } from '../interfaces/user.interface';
 import { CreateUserDto, UpdatePasswordDto } from '../dto/users.dto';
 import { validate, v4 as createUuid } from 'uuid';
 
@@ -7,7 +7,23 @@ import { validate, v4 as createUuid } from 'uuid';
 export class UsersService {
     private readonly users: User[] = [];
 
-    createUser(createUserDto: CreateUserDto) {
+    createUser(createUserDto: CreateUserDto): UserResponse {
+        if (!createUserDto.login) {
+            return {
+                isError: true,
+                statusCode: HttpStatus.BAD_REQUEST,
+                errorMessage: 'Login is required'
+            }
+        }
+
+        if (!createUserDto.password) {
+            return {
+                isError: true,
+                statusCode: HttpStatus.BAD_REQUEST,
+                errorMessage: 'Password is required'
+            }
+        }
+
         const currentTime: number = Date.now();
         const newUser: User = {
             id: createUuid(),
@@ -18,47 +34,93 @@ export class UsersService {
             updatedAt: currentTime,
         };
         this.users.push(newUser);
+
+        return {
+            isError: false
+        }
     }
 
     findAllUsers(): User[] {
         return this.users;
     }
 
-    findByUserId(id: string): User {
+    findByUserId(id: string): UserResponse {
         const isValidId: boolean = validate(id);
-        console.log('is valid user: ' + isValidId);
         if (!isValidId) {
-            return;
+            return {
+                isError: true,
+                errorMessage: 'Id is invalid',
+                statusCode: HttpStatus.BAD_REQUEST
+            };
         }
 
         const user: User = this.users.find(u => u.id === id);
-        return user;
+        if (!user) {
+            return {
+                isError: true,
+                errorMessage: 'User was not found',
+                statusCode: HttpStatus.NOT_FOUND
+            };
+        }
+
+        return {
+            data: user,
+            isError: false
+        };
     }
 
-    updateUserPassword(id: string, updatePasswordDto: UpdatePasswordDto) {
+    updateUserPassword(id: string, updatePasswordDto: UpdatePasswordDto): UserResponse {
         if (!validate(id)) {
-            // 400
+            return {
+                isError: true,
+                errorMessage: 'Id is invalid',
+                statusCode: HttpStatus.BAD_REQUEST
+            };
         }
         const user: User = this.users.find(u => u.id === id);
         if (!user) {
-            // 404
+            return {
+                isError: true,
+                errorMessage: 'User was not found',
+                statusCode: HttpStatus.NOT_FOUND
+            };
         }
         if (user.password !== updatePasswordDto.oldPassword) {
-            // 403
+            return {
+                isError: true,
+                errorMessage: 'Old password is wrong',
+                statusCode: HttpStatus.FORBIDDEN
+            };
         }
 
         user.password = updatePasswordDto.newPassword;
+        return {
+            isError: false
+        }
     }
 
-    deleteUser(id: string) {
+    deleteUser(id: string): UserResponse {
         if (!validate(id)) {
-            // 400
+            return {
+                isError: true,
+                errorMessage: 'Id is invalid',
+                statusCode: HttpStatus.BAD_REQUEST
+            };
         }
+
         const user: User = this.users.find(u => u.id === id);
         if (!user) {
-            // 404
+            return {
+                isError: true,
+                errorMessage: 'User was not found',
+                statusCode: HttpStatus.NOT_FOUND
+            };
         }
 
         this.users.splice(this.users.indexOf(user), 1);
+
+        return {
+            isError: false
+        }
     }
 }

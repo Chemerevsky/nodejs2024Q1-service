@@ -4,3 +4,10 @@ export interface Album {
     year: number;
     artistId: string | null; // refers to Artist
 }
+
+export interface AlbumResponse {
+    isError: boolean,
+    data?: Album,
+    errorMessage?: string,
+    statusCode?: number
+}

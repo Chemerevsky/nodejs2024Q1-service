@@ -5,138 +5,138 @@ import { validate, v4 as createUuid } from 'uuid';
 
 @Injectable()
 export class AlbumsService {
-    private readonly albums: Album[] = [];
+  private readonly albums: Album[] = [];
 
-    create(createAlbumDto: CreateAlbumDto): AlbumResponse {
-        if (!createAlbumDto.name) {
-            return {
-                isError: true,
-                statusCode: HttpStatus.BAD_REQUEST,
-                errorMessage: 'Name is required'
-            }
-        }
-
-        if (!createAlbumDto.year) {
-            return {
-                isError: true,
-                statusCode: HttpStatus.BAD_REQUEST,
-                errorMessage: 'Year is required'
-            }
-        }
-
-        if (createAlbumDto.artistId === undefined) {
-            return {
-                isError: true,
-                statusCode: HttpStatus.BAD_REQUEST,
-                errorMessage: 'ArtistId should be defined'
-            }
-        }
-
-        const newAlbum: Album = {
-            id: createUuid(),
-            name: createAlbumDto.name,
-            year: createAlbumDto.year,
-            artistId: createAlbumDto.artistId,
-        };
-        this.albums.push(newAlbum);
-
-        return {
-            isError: false,
-            data: newAlbum
-        }
+  create(createAlbumDto: CreateAlbumDto): AlbumResponse {
+    if (!createAlbumDto.name) {
+      return {
+        isError: true,
+        statusCode: HttpStatus.BAD_REQUEST,
+        errorMessage: 'Name is required',
+      };
     }
 
-    findAll(): Album[] {
-        return this.albums;
+    if (!createAlbumDto.year) {
+      return {
+        isError: true,
+        statusCode: HttpStatus.BAD_REQUEST,
+        errorMessage: 'Year is required',
+      };
     }
 
-    findById(id: string): AlbumResponse {
-        const isValidId: boolean = validate(id);
-        if (!isValidId) {
-            return {
-                isError: true,
-                errorMessage: 'Id is invalid',
-                statusCode: HttpStatus.BAD_REQUEST
-            };
-        }
-
-        const album: Album = this.albums.find(t => t.id === id);
-        if (!album) {
-            return {
-                isError: true,
-                errorMessage: 'Album was not found',
-                statusCode: HttpStatus.NOT_FOUND
-            };
-        }
-
-        return {
-            data: album,
-            isError: false
-        };
+    if (createAlbumDto.artistId === undefined) {
+      return {
+        isError: true,
+        statusCode: HttpStatus.BAD_REQUEST,
+        errorMessage: 'ArtistId should be defined',
+      };
     }
 
-    update(id: string, updateAlbumDto: UpdateAlbumDto): AlbumResponse {
-        if (!validate(id)) {
-            return {
-                isError: true,
-                errorMessage: 'Id is invalid',
-                statusCode: HttpStatus.BAD_REQUEST
-            };
-        }
+    const newAlbum: Album = {
+      id: createUuid(),
+      name: createAlbumDto.name,
+      year: createAlbumDto.year,
+      artistId: createAlbumDto.artistId,
+    };
+    this.albums.push(newAlbum);
 
-        const album: Album = this.albums.find(u => u.id === id);
-        if (!album) {
-            return {
-                isError: true,
-                errorMessage: 'Album was not found',
-                statusCode: HttpStatus.NOT_FOUND
-            };
-        }
+    return {
+      isError: false,
+      data: newAlbum,
+    };
+  }
 
-        for (const property in updateAlbumDto) {
-            album[property] = updateAlbumDto[property];
-        }
+  findAll(): Album[] {
+    return this.albums;
+  }
 
-        return {
-            isError: false,
-            data: album
-        }
+  findById(id: string): AlbumResponse {
+    const isValidId: boolean = validate(id);
+    if (!isValidId) {
+      return {
+        isError: true,
+        errorMessage: 'Id is invalid',
+        statusCode: HttpStatus.BAD_REQUEST,
+      };
     }
 
-    delete(id: string): AlbumResponse {
-        if (!validate(id)) {
-            return {
-                isError: true,
-                errorMessage: 'Id is invalid',
-                statusCode: HttpStatus.BAD_REQUEST
-            };
-        }
-
-        const album: Album = this.albums.find(u => u.id === id);
-        if (!album) {
-            return {
-                isError: true,
-                errorMessage: 'Album was not found',
-                statusCode: HttpStatus.NOT_FOUND
-            };
-        }
-
-        this.albums.splice(this.albums.indexOf(album), 1);
-
-        return {
-            isError: false
-        }
+    const album: Album = this.albums.find((t) => t.id === id);
+    if (!album) {
+      return {
+        isError: true,
+        errorMessage: 'Album was not found',
+        statusCode: HttpStatus.NOT_FOUND,
+      };
     }
 
-    findByIds(ids: string[]): Album[] {
-        const albums: Album[] = [];
-        ids.forEach(id => {
-            const albumResponse: AlbumResponse = this.findById(id);
-            if (!albumResponse.isError) {
-                albums.push(albumResponse.data);
-            }
-        });
+    return {
+      data: album,
+      isError: false,
+    };
+  }
 
-        return albums;
+  update(id: string, updateAlbumDto: UpdateAlbumDto): AlbumResponse {
+    if (!validate(id)) {
+      return {
+        isError: true,
+        errorMessage: 'Id is invalid',
+        statusCode: HttpStatus.BAD_REQUEST,
+      };
     }
+
+    const album: Album = this.albums.find((u) => u.id === id);
+    if (!album) {
+      return {
+        isError: true,
+        errorMessage: 'Album was not found',
+        statusCode: HttpStatus.NOT_FOUND,
+      };
+    }
+
+    for (const property in updateAlbumDto) {
+      album[property] = updateAlbumDto[property];
+    }
+
+    return {
+      isError: false,
+      data: album,
+    };
+  }
+
+  delete(id: string): AlbumResponse {
+    if (!validate(id)) {
+      return {
+        isError: true,
+        errorMessage: 'Id is invalid',
+        statusCode: HttpStatus.BAD_REQUEST,
+      };
+    }
+
+    const album: Album = this.albums.find((u) => u.id === id);
+    if (!album) {
+      return {
+        isError: true,
+        errorMessage: 'Album was not found',
+        statusCode: HttpStatus.NOT_FOUND,
+      };
+    }
+
+    this.albums.splice(this.albums.indexOf(album), 1);
+
+    return {
+      isError: false,
+    };
+  }
+
+  findByIds(ids: string[]): Album[] {
+    const albums: Album[] = [];
+    ids.forEach((id) => {
+      const albumResponse: AlbumResponse = this.findById(id);
+      if (!albumResponse.isError) {
+        albums.push(albumResponse.data);
+      }
+    });
+
+    return albums;
+  }
 }

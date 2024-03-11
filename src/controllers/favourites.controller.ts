@@ -1,76 +1,111 @@
-import { Controller, Get, Param, Post, Body, Put, Delete, HttpException, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Delete,
+  HttpException,
+  HttpCode,
+} from '@nestjs/common';
 import { FavouritesService } from '../services/favourites.service';
-import { FavoritesGetAllResponse, FavoritesResponse } from '../interfaces/favorites.interface';
+import {
+  FavoritesGetAllResponse,
+  FavoritesResponse,
+} from '../interfaces/favorites.interface';
 
 @Controller('favs')
 export class FavouritesController {
-    constructor(private favouritesService: FavouritesService) {}
+  constructor(private favouritesService: FavouritesService) {}
 
-    @Get()
-    async findAll(): Promise<FavoritesGetAllResponse> {
-        return this.favouritesService.findAll();
+  @Get()
+  async findAll(): Promise<FavoritesGetAllResponse> {
+    return this.favouritesService.findAll();
+  }
+
+  @Post('track/:id')
+  async addTrackToFavorites(
+    @Param('id') id: string,
+  ): Promise<FavoritesResponse> {
+    const response: FavoritesResponse = this.favouritesService.addToFavorites(
+      'track',
+      id,
+    );
+    if (response.isError) {
+      throw new HttpException(response.errorMessage, response.statusCode);
     }
 
-    @Post('track/:id')
-    async addTrackToFavorites(@Param('id') id: string): Promise<FavoritesResponse> {
-        const response: FavoritesResponse = this.favouritesService.addToFavorites('track', id);
-        if (response.isError) {
-            throw new HttpException(response.errorMessage, response.statusCode);
-        }
+    return response;
+  }
 
-        return response;
+  @Post('album/:id')
+  async addAlbumToFavorites(
+    @Param('id') id: string,
+  ): Promise<FavoritesResponse> {
+    const response: FavoritesResponse = this.favouritesService.addToFavorites(
+      'album',
+      id,
+    );
+    if (response.isError) {
+      throw new HttpException(response.errorMessage, response.statusCode);
     }
 
-    @Post('album/:id')
-    async addAlbumToFavorites(@Param('id') id: string): Promise<FavoritesResponse> {
-        const response: FavoritesResponse = this.favouritesService.addToFavorites('album', id);
-        if (response.isError) {
-            throw new HttpException(response.errorMessage, response.statusCode);
-        }
+    return response;
+  }
 
-        return response;
+  @Post('artist/:id')
+  async addArtistToFavorites(
+    @Param('id') id: string,
+  ): Promise<FavoritesResponse> {
+    const response: FavoritesResponse = this.favouritesService.addToFavorites(
+      'artist',
+      id,
+    );
+    if (response.isError) {
+      throw new HttpException(response.errorMessage, response.statusCode);
     }
 
-    @Post('artist/:id')
-    async addArtistToFavorites(@Param('id') id: string): Promise<FavoritesResponse> {
-        const response: FavoritesResponse = this.favouritesService.addToFavorites('artist', id);
-        if (response.isError) {
-            throw new HttpException(response.errorMessage, response.statusCode);
-        }
+    return response;
+  }
 
-        return response;
+  @Delete('track/:id')
+  @HttpCode(204)
+  async removeTrackFromFavorites(
+    @Param('id') id: string,
+  ): Promise<FavoritesResponse> {
+    const response: FavoritesResponse =
+      this.favouritesService.removeFromFavorites('track', id);
+    if (response.isError) {
+      throw new HttpException(response.errorMessage, response.statusCode);
     }
 
-    @Delete('track/:id')
-    @HttpCode(204)
-    async removeTrackFromFavorites(@Param('id') id: string): Promise<FavoritesResponse> {
-        const response: FavoritesResponse = this.favouritesService.removeFromFavorites('track', id);
-        if (response.isError) {
-            throw new HttpException(response.errorMessage, response.statusCode);
-        }
+    return response;
+  }
 
-        return response;
+  @Delete('artist/:id')
+  @HttpCode(204)
+  async removeArtistFromFavorites(
+    @Param('id') id: string,
+  ): Promise<FavoritesResponse> {
+    const response: FavoritesResponse =
+      this.favouritesService.removeFromFavorites('artist', id);
+    if (response.isError) {
+      throw new HttpException(response.errorMessage, response.statusCode);
     }
 
-    @Delete('artist/:id')
-    @HttpCode(204)
-    async removeArtistFromFavorites(@Param('id') id: string): Promise<FavoritesResponse> {
-        const response: FavoritesResponse = this.favouritesService.removeFromFavorites('artist', id);
-        if (response.isError) {
-            throw new HttpException(response.errorMessage, response.statusCode);
-        }
+    return response;
+  }
 
-        return response;
+  @Delete('album/:id')
+  @HttpCode(204)
+  async removeAlbumFromFavorites(
+    @Param('id') id: string,
+  ): Promise<FavoritesResponse> {
+    const response: FavoritesResponse =
+      this.favouritesService.removeFromFavorites('album', id);
+    if (response.isError) {
+      throw new HttpException(response.errorMessage, response.statusCode);
     }
 
-    @Delete('album/:id')
-    @HttpCode(204)
-    async removeAlbumFromFavorites(@Param('id') id: string): Promise<FavoritesResponse> {
-        const response: FavoritesResponse = this.favouritesService.removeFromFavorites('album', id);
-        if (response.isError) {
-            throw new HttpException(response.errorMessage, response.statusCode);
-        }
-
-        return response;
-    }
+    return response;
+  }
 }

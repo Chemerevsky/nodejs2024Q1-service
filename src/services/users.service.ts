@@ -5,124 +5,127 @@ import { validate, v4 as createUuid } from 'uuid';
 
 @Injectable()
 export class UsersService {
-    private readonly users: User[] = [];
+  private readonly users: User[] = [];
 
-    createUser(createUserDto: CreateUserDto): UserResponse {
-        if (!createUserDto.login) {
-            return {
-                isError: true,
-                statusCode: HttpStatus.BAD_REQUEST,
-                errorMessage: 'Login is required'
-            }
-        }
-
-        if (!createUserDto.password) {
-            return {
-                isError: true,
-                statusCode: HttpStatus.BAD_REQUEST,
-                errorMessage: 'Password is required'
-            }
-        }
-
-        const currentTime: number = Date.now();
-        const newUser: User = {
-            id: createUuid(),
-            login: createUserDto.login,
-            password: createUserDto.password,
-            version: 0,
-            createdAt: currentTime,
-            updatedAt: currentTime,
-        };
-        this.users.push(newUser);
-
-        return {
-            isError: false,
-            data: newUser
-        }
+  createUser(createUserDto: CreateUserDto): UserResponse {
+    if (!createUserDto.login) {
+      return {
+        isError: true,
+        statusCode: HttpStatus.BAD_REQUEST,
+        errorMessage: 'Login is required',
+      };
     }
 
-    findAllUsers(): User[] {
-        return this.users;
+    if (!createUserDto.password) {
+      return {
+        isError: true,
+        statusCode: HttpStatus.BAD_REQUEST,
+        errorMessage: 'Password is required',
+      };
     }
 
-    findByUserId(id: string): UserResponse {
-        const isValidId: boolean = validate(id);
-        if (!isValidId) {
-            return {
-                isError: true,
-                errorMessage: 'Id is invalid',
-                statusCode: HttpStatus.BAD_REQUEST
-            };
-        }
+    const currentTime: number = Date.now();
+    const newUser: User = {
+      id: createUuid(),
+      login: createUserDto.login,
+      password: createUserDto.password,
+      version: 0,
+      createdAt: currentTime,
+      updatedAt: currentTime,
+    };
+    this.users.push(newUser);
 
-        const user: User = this.users.find(u => u.id === id);
-        if (!user) {
-            return {
-                isError: true,
-                errorMessage: 'User was not found',
-                statusCode: HttpStatus.NOT_FOUND
-            };
-        }
+    return {
+      isError: false,
+      data: newUser,
+    };
+  }
 
-        return {
-            data: user,
-            isError: false
-        };
+  findAllUsers(): User[] {
+    return this.users;
+  }
+
+  findByUserId(id: string): UserResponse {
+    const isValidId: boolean = validate(id);
+    if (!isValidId) {
+      return {
+        isError: true,
+        errorMessage: 'Id is invalid',
+        statusCode: HttpStatus.BAD_REQUEST,
+      };
     }
 
-    updateUserPassword(id: string, updatePasswordDto: UpdatePasswordDto): UserResponse {
-        if (!validate(id)) {
-            return {
-                isError: true,
-                errorMessage: 'Id is invalid',
-                statusCode: HttpStatus.BAD_REQUEST
-            };
-        }
-        const user: User = this.users.find(u => u.id === id);
-        if (!user) {
-            return {
-                isError: true,
-                errorMessage: 'User was not found',
-                statusCode: HttpStatus.NOT_FOUND
-            };
-        }
-        if (user.password !== updatePasswordDto.oldPassword) {
-            return {
-                isError: true,
-                errorMessage: 'Old password is wrong',
-                statusCode: HttpStatus.FORBIDDEN
-            };
-        }
-
-        user.password = updatePasswordDto.newPassword;
-        return {
-            isError: false,
-            data: user
-        }
+    const user: User = this.users.find((u) => u.id === id);
+    if (!user) {
+      return {
+        isError: true,
+        errorMessage: 'User was not found',
+        statusCode: HttpStatus.NOT_FOUND,
+      };
     }
 
-    deleteUser(id: string): UserResponse {
-        if (!validate(id)) {
-            return {
-                isError: true,
-                errorMessage: 'Id is invalid',
-                statusCode: HttpStatus.BAD_REQUEST
-            };
-        }
+    return {
+      data: user,
+      isError: false,
+    };
+  }
 
-        const user: User = this.users.find(u => u.id === id);
-        if (!user) {
-            return {
-                isError: true,
-                errorMessage: 'User was not found',
-                statusCode: HttpStatus.NOT_FOUND
-            };
-        }
-
-        this.users.splice(this.users.indexOf(user), 1);
-
-        return {
-            isError: false
-        }
+  updateUserPassword(
+    id: string,
+    updatePasswordDto: UpdatePasswordDto,
+  ): UserResponse {
+    if (!validate(id)) {
+      return {
+        isError: true,
+        errorMessage: 'Id is invalid',
+        statusCode: HttpStatus.BAD_REQUEST,
+      };
     }
+    const user: User = this.users.find((u) => u.id === id);
+    if (!user) {
+      return {
+        isError: true,
+        errorMessage: 'User was not found',
+        statusCode: HttpStatus.NOT_FOUND,
+      };
+    }
+    if (user.password !== updatePasswordDto.oldPassword) {
+      return {
+        isError: true,
+        errorMessage: 'Old password is wrong',
+        statusCode: HttpStatus.FORBIDDEN,
+      };
+    }
+
+    user.password = updatePasswordDto.newPassword;
+    return {
+      isError: false,
+      data: user,
+    };
+  }
+
+  deleteUser(id: string): UserResponse {
+    if (!validate(id)) {
+      return {
+        isError: true,
+        errorMessage: 'Id is invalid',
+        statusCode: HttpStatus.BAD_REQUEST,
+      };
+    }
+
+    const user: User = this.users.find((u) => u.id === id);
+    if (!user) {
+      return {
+        isError: true,
+        errorMessage: 'User was not found',
+        statusCode: HttpStatus.NOT_FOUND,
+      };
+    }
+
+    this.users.splice(this.users.indexOf(user), 1);
+
+    return {
+      isError: false,
+    };
+  }
 }

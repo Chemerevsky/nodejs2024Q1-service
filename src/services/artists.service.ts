@@ -116,4 +116,16 @@ export class ArtistsService {
             isError: false
         }
     }
+
+    findByIds(ids: string[]): Artist[] {
+        const artists: Artist[] = [];
+        ids.forEach(id => {
+            const artistResponse: ArtistResponse = this.findById(id);
+            if (!artistResponse.isError) {
+                artists.push(artistResponse.data);
+            }
+        });
+
+        return artists;
+    }
 }

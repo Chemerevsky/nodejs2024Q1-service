@@ -118,4 +118,16 @@ export class TracksService {
             isError: false
         }
     }
+
+    findByIds(ids: string[]): Track[] {
+        const tracks: Track[] = [];
+        ids.forEach(id => {
+            const trackResponse: TrackResponse = this.findById(id);
+            if (!trackResponse.isError) {
+                tracks.push(trackResponse.data);
+            }
+        });
+
+        return tracks;
+    }
 }

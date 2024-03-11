@@ -125,4 +125,16 @@ export class AlbumsService {
             isError: false
         }
     }
+
+    findByIds(ids: string[]): Album[] {
+        const albums: Album[] = [];
+        ids.forEach(id => {
+            const albumResponse: AlbumResponse = this.findById(id);
+            if (!albumResponse.isError) {
+                albums.push(albumResponse.data);
+            }
+        });
+
+        return albums;
+    }
 }

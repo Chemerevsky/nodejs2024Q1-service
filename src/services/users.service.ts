@@ -36,7 +36,8 @@ export class UsersService {
         this.users.push(newUser);
 
         return {
-            isError: false
+            isError: false,
+            data: newUser
         }
     }
 
@@ -95,7 +96,8 @@ export class UsersService {
 
         user.password = updatePasswordDto.newPassword;
         return {
-            isError: false
+            isError: false,
+            data: user
         }
     }
 

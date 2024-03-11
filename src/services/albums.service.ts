@@ -41,7 +41,8 @@ export class AlbumsService {
         this.albums.push(newAlbum);
 
         return {
-            isError: false
+            isError: false,
+            data: newAlbum
         }
     }
 
@@ -97,7 +98,8 @@ export class AlbumsService {
         }
 
         return {
-            isError: false
+            isError: false,
+            data: album
         }
     }
 

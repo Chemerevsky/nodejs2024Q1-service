@@ -13,7 +13,7 @@ export class TracksController {
     }
 
    @Get(':id')
-    async findById(@Param('id') id: string) {
+    async findById(@Param('id') id: string): Promise<Track> {
         const trackResponse: TrackResponse = this.tracksService.findById(id);
         if (trackResponse.isError) {
             throw new HttpException(trackResponse.errorMessage, trackResponse.statusCode);
@@ -23,11 +23,13 @@ export class TracksController {
     }
 
     @Post()
-    async create(@Body() createTrackDto: CreateTrackDto) {
+    async create(@Body() createTrackDto: CreateTrackDto): Promise<Track> {
         const trackResponse: TrackResponse = this.tracksService.create(createTrackDto);
         if (trackResponse.isError) {
             throw new HttpException(trackResponse.errorMessage, trackResponse.statusCode);
         }
+
+        return trackResponse.data;
     }
 
     @Put(':id')

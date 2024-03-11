@@ -13,7 +13,7 @@ export class UsersController {
     }
 
     @Get(':id')
-    async findById(@Param('id') id: string) {
+    async findById(@Param('id') id: string): Promise<User> {
         const userResponse: UserResponse = this.usersService.findByUserId(id);
         if (userResponse.isError) {
             throw new HttpException(userResponse.errorMessage, userResponse.statusCode);
@@ -23,15 +23,17 @@ export class UsersController {
     }
 
     @Post()
-    async create(@Body() createUserDto: CreateUserDto) {
+    async create(@Body() createUserDto: CreateUserDto): Promise<User> {
         const userResponse: UserResponse = this.usersService.createUser(createUserDto);
         if (userResponse.isError) {
             throw new HttpException(userResponse.errorMessage, userResponse.statusCode);
         }
+
+        return userResponse.data;
     }
 
     @Put(':id')
-    async update(@Param('id') id: string, @Body() updatePasswordDto: UpdatePasswordDto) {
+    async update(@Param('id') id: string, @Body() updatePasswordDto: UpdatePasswordDto): Promise<User> {
         const userResponse: UserResponse = this.usersService.updateUserPassword(id, updatePasswordDto);
         if (userResponse.isError) {
             throw new HttpException(userResponse.errorMessage, userResponse.statusCode);

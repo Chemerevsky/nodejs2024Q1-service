@@ -13,7 +13,7 @@ export class ArtistsController {
     }
 
    @Get(':id')
-    async findById(@Param('id') id: string) {
+    async findById(@Param('id') id: string): Promise<Artist> {
         const artistResponse: ArtistResponse = this.artistsService.findById(id);
         if (artistResponse.isError) {
             throw new HttpException(artistResponse.errorMessage, artistResponse.statusCode);
@@ -23,15 +23,17 @@ export class ArtistsController {
     }
 
     @Post()
-    async create(@Body() createArtistDto: CreateArtistDto) {
+    async create(@Body() createArtistDto: CreateArtistDto): Promise<Artist> {
         const artistResponse: ArtistResponse = this.artistsService.create(createArtistDto);
         if (artistResponse.isError) {
             throw new HttpException(artistResponse.errorMessage, artistResponse.statusCode);
         }
+
+        return artistResponse.data;
     }
 
     @Put(':id')
-    async update(@Param('id') id: string, @Body() updateArtistDto: UpdateArtistDto) {
+    async update(@Param('id') id: string, @Body() updateArtistDto: UpdateArtistDto): Promise<Artist>  {
         const artistResponse: ArtistResponse = this.artistsService.update(id, updateArtistDto);
         if (artistResponse.isError) {
             throw new HttpException(artistResponse.errorMessage, artistResponse.statusCode);

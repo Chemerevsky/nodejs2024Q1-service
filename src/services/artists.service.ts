@@ -32,7 +32,8 @@ export class ArtistsService {
         this.artists.push(newArtist);
 
         return {
-            isError: false
+            isError: false,
+            data: newArtist
         }
     }
 
@@ -88,7 +89,8 @@ export class ArtistsService {
         }
 
         return {
-            isError: false
+            isError: false,
+            data: artist
         }
     }
 

@@ -13,7 +13,7 @@ export class AlbumsController {
     }
 
    @Get(':id')
-    async findById(@Param('id') id: string) {
+    async findById(@Param('id') id: string): Promise<Album> {
         const albumResponse: AlbumResponse = this.albumsService.findById(id);
         if (albumResponse.isError) {
             throw new HttpException(albumResponse.errorMessage, albumResponse.statusCode);
@@ -23,15 +23,17 @@ export class AlbumsController {
     }
 
     @Post()
-    async create(@Body() createAlbumDto: CreateAlbumDto) {
+    async create(@Body() createAlbumDto: CreateAlbumDto): Promise<Album> {
         const albumResponse: AlbumResponse = this.albumsService.create(createAlbumDto);
         if (albumResponse.isError) {
             throw new HttpException(albumResponse.errorMessage, albumResponse.statusCode);
         }
+
+        return albumResponse.data;
     }
 
     @Put(':id')
-    async update(@Param('id') id: string, @Body() updateAlbumDto: UpdateAlbumDto) {
+    async update(@Param('id') id: string, @Body() updateAlbumDto: UpdateAlbumDto): Promise<Album> {
         const albumResponse: AlbumResponse = this.albumsService.update(id, updateAlbumDto);
         if (albumResponse.isError) {
             throw new HttpException(albumResponse.errorMessage, albumResponse.statusCode);

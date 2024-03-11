@@ -34,7 +34,8 @@ export class TracksService {
         this.tracks.push(newTrack);
 
         return {
-            isError: false
+            isError: false,
+            data: newTrack
         }
     }
 
@@ -90,7 +91,8 @@ export class TracksService {
         }
 
         return {
-            isError: false
+            isError: false,
+            data: track
         }
     }
 

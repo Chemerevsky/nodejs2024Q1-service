@@ -3,3 +3,10 @@ export interface Artist {
     name: string;
     grammy: boolean;
 }
+
+export interface ArtistResponse {
+    isError: boolean,
+    data?: Artist,
+    errorMessage?: string,
+    statusCode?: number
+}

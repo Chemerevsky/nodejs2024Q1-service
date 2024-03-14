@@ -98,6 +98,9 @@ export class UsersService {
     }
 
     user.password = updatePasswordDto.newPassword;
+    user.version++;
+    user.updatedAt = Date.now();
+
     return {
       isError: false,
       data: user,

@@ -11,6 +11,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { User } from './entities/user.entity';
 import { Track } from './entities/track.entity';
+import { Album } from './entities/album.entity';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { Track } from './entities/track.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        entities: [User, Track],
+        entities: [User, Track, Album],
         synchronize: true, // true shouldn't be used in production - otherwise you can lose production data
       }),
       inject: [ConfigService],

@@ -8,10 +8,10 @@ export class Track {
   @Column()
   name: string;
 
-  @Column()
+  @Column({nullable: true})
   artistId: string | null;
 
-  @Column()
+  @Column({nullable: true})
   albumId: string | null;
 
   @Column()

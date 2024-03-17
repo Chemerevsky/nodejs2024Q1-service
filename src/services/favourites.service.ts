@@ -14,7 +14,7 @@ import { Album, AlbumResponse } from '../interfaces/album.interface';
 
 @Injectable()
 export class FavouritesService {
-  constructor(
+  /* constructor(
     private readonly trackService: TracksService,
     private readonly artistsService: ArtistsService,
     private readonly albumsService: AlbumsService,
@@ -139,5 +139,5 @@ export class FavouritesService {
       errorMessage: `${type} is not in favorites`,
       statusCode: HttpStatus.NOT_FOUND,
     };
-  }
+  } */
 }

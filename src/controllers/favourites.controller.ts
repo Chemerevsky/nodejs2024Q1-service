@@ -15,7 +15,7 @@ import {
 
 @Controller('favs')
 export class FavouritesController {
-  constructor(private favouritesService: FavouritesService) {}
+  /* constructor(private favouritesService: FavouritesService) {}
 
   @Get()
   async findAll(): Promise<FavoritesGetAllResponse> {
@@ -107,5 +107,5 @@ export class FavouritesController {
     }
 
     return response;
-  }
+  } */
 }

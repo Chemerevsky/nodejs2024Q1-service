@@ -8,9 +8,11 @@ import {
   Delete,
   HttpException,
   HttpCode,
+  HttpStatus,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { TracksService } from '../services/tracks.service';
-import { Track, TrackResponse } from '../interfaces/track.interface';
+import { Track } from '../interfaces/track.interface';
 import { CreateTrackDto, UpdateTrackDto } from '../dto/tracks.dto';
 
 @Controller('track')
@@ -23,60 +25,51 @@ export class TracksController {
   }
 
   @Get(':id')
-  async findById(@Param('id') id: string): Promise<Track> {
-    const trackResponse: TrackResponse = this.tracksService.findById(id);
-    if (trackResponse.isError) {
-      throw new HttpException(
-        trackResponse.errorMessage,
-        trackResponse.statusCode,
-      );
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Track> {
+    const track = await this.tracksService.findOne(id);
+    if (!track) {
+      throw new HttpException('Track was not found', HttpStatus.NOT_FOUND);
     }
 
-    return trackResponse.data;
+    return track;
   }
 
   @Post()
   async create(@Body() createTrackDto: CreateTrackDto): Promise<Track> {
-    const trackResponse: TrackResponse =
-      this.tracksService.create(createTrackDto);
-    if (trackResponse.isError) {
-      throw new HttpException(
-        trackResponse.errorMessage,
-        trackResponse.statusCode,
-      );
+    if (!createTrackDto.name) {
+      throw new HttpException('Name is required', HttpStatus.BAD_REQUEST);
     }
 
-    return trackResponse.data;
+    if (!createTrackDto.duration) {
+      throw new HttpException('Duration is required', HttpStatus.BAD_REQUEST);
+    }
+
+    return this.tracksService.create(createTrackDto);
   }
 
   @Put(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() updateTrackDto: UpdateTrackDto,
   ) {
-    const trackResponse: TrackResponse = this.tracksService.update(
-      id,
-      updateTrackDto,
-    );
-    if (trackResponse.isError) {
-      throw new HttpException(
-        trackResponse.errorMessage,
-        trackResponse.statusCode,
-      );
+    const track = await this.tracksService.findOne(id);
+    if (!track) {
+      throw new HttpException('Track was not found', HttpStatus.NOT_FOUND);
     }
 
-    return trackResponse.data;
+    await this.tracksService.update(id, updateTrackDto);
+
+    return this.tracksService.findOne(id);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  async deleteUser(@Param('id') id: string) {
-    const trackResponse: TrackResponse = this.tracksService.delete(id);
-    if (trackResponse.isError) {
-      throw new HttpException(
-        trackResponse.errorMessage,
-        trackResponse.statusCode,
-      );
+  async delete(@Param('id', ParseUUIDPipe) id: string) {
+    const track = await this.tracksService.findOne(id);
+    if (!track) {
+      throw new HttpException('Track was not found', HttpStatus.NOT_FOUND);
     }
+
+    return this.tracksService.remove(id);
   }
 }

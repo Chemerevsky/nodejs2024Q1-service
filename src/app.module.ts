@@ -10,6 +10,7 @@ import { FavouritesModule } from './modules/favourites.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { User } from './entities/user.entity';
+import { Track } from './entities/track.entity';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { User } from './entities/user.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        entities: [User],
+        entities: [User, Track],
         synchronize: true, // true shouldn't be used in production - otherwise you can lose production data
       }),
       inject: [ConfigService],

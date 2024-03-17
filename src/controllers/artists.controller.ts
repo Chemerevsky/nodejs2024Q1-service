@@ -8,9 +8,11 @@ import {
   Delete,
   HttpException,
   HttpCode,
+  HttpStatus,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { ArtistsService } from '../services/artists.service';
-import { Artist, ArtistResponse } from '../interfaces/artist.interface';
+import { Artist } from '../interfaces/artist.interface';
 import { CreateArtistDto, UpdateArtistDto } from '../dto/artists.dto';
 
 @Controller('artist')
@@ -23,60 +25,51 @@ export class ArtistsController {
   }
 
   @Get(':id')
-  async findById(@Param('id') id: string): Promise<Artist> {
-    const artistResponse: ArtistResponse = this.artistsService.findById(id);
-    if (artistResponse.isError) {
-      throw new HttpException(
-        artistResponse.errorMessage,
-        artistResponse.statusCode,
-      );
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Artist> {
+    const artist = await this.artistsService.findOne(id);
+    if (!artist) {
+      throw new HttpException('Artist was not found', HttpStatus.NOT_FOUND);
     }
 
-    return artistResponse.data;
+    return artist;
   }
 
   @Post()
   async create(@Body() createArtistDto: CreateArtistDto): Promise<Artist> {
-    const artistResponse: ArtistResponse =
-      this.artistsService.create(createArtistDto);
-    if (artistResponse.isError) {
-      throw new HttpException(
-        artistResponse.errorMessage,
-        artistResponse.statusCode,
-      );
+    if (!createArtistDto.name) {
+      throw new HttpException('Name is required', HttpStatus.BAD_REQUEST);
     }
 
-    return artistResponse.data;
+    if (createArtistDto.grammy === undefined) {
+      throw new HttpException('Grammy is required', HttpStatus.BAD_REQUEST);
+    }
+
+    return this.artistsService.create(createArtistDto);
   }
 
   @Put(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() updateArtistDto: UpdateArtistDto,
   ): Promise<Artist> {
-    const artistResponse: ArtistResponse = this.artistsService.update(
-      id,
-      updateArtistDto,
-    );
-    if (artistResponse.isError) {
-      throw new HttpException(
-        artistResponse.errorMessage,
-        artistResponse.statusCode,
-      );
+    const artist = await this.artistsService.findOne(id);
+    if (!artist) {
+      throw new HttpException('Artist was not found', HttpStatus.NOT_FOUND);
     }
 
-    return artistResponse.data;
+    await this.artistsService.update(id, updateArtistDto);
+
+    return this.artistsService.findOne(id);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  async deleteUser(@Param('id') id: string) {
-    const artistResponse: ArtistResponse = this.artistsService.delete(id);
-    if (artistResponse.isError) {
-      throw new HttpException(
-        artistResponse.errorMessage,
-        artistResponse.statusCode,
-      );
+  async deleteUser(@Param('id', ParseUUIDPipe) id: string) {
+    const artist = await this.artistsService.findOne(id);
+    if (!artist) {
+      throw new HttpException('Artist was not found', HttpStatus.NOT_FOUND);
     }
+
+    return this.artistsService.remove(id);
   }
 }

@@ -1,134 +1,40 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
-import { User, UserResponse } from '../interfaces/user.interface';
-import { CreateUserDto, UpdatePasswordDto } from '../dto/users.dto';
-import { validate, v4 as createUuid } from 'uuid';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CreateUserDto } from '../dto/users.dto';
+import { Repository, UpdateResult } from 'typeorm';
+import { User } from '../entities/user.entity';
 
 @Injectable()
 export class UsersService {
-  private readonly users: User[] = [];
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+  ) {}
 
-  createUser(createUserDto: CreateUserDto): UserResponse {
-    if (!createUserDto.login) {
-      return {
-        isError: true,
-        statusCode: HttpStatus.BAD_REQUEST,
-        errorMessage: 'Login is required',
-      };
-    }
+  create(createUserDto: CreateUserDto): Promise<User> {
+    const user = new User();
+    user.login = createUserDto.login;
+    user.password = createUserDto.password;
 
-    if (!createUserDto.password) {
-      return {
-        isError: true,
-        statusCode: HttpStatus.BAD_REQUEST,
-        errorMessage: 'Password is required',
-      };
-    }
-
-    const currentTime: number = Date.now();
-    const newUser: User = {
-      id: createUuid(),
-      login: createUserDto.login,
-      password: createUserDto.password,
-      version: 0,
-      createdAt: currentTime,
-      updatedAt: currentTime,
-    };
-    this.users.push(newUser);
-
-    return {
-      isError: false,
-      data: newUser,
-    };
+    return this.usersRepository.save(user);
   }
 
-  findAllUsers(): User[] {
-    return this.users;
+  findAll(): Promise<User[]> {
+    return this.usersRepository.find();
   }
 
-  findByUserId(id: string): UserResponse {
-    const isValidId: boolean = validate(id);
-    if (!isValidId) {
-      return {
-        isError: true,
-        errorMessage: 'Id is invalid',
-        statusCode: HttpStatus.BAD_REQUEST,
-      };
-    }
-
-    const user: User = this.users.find((u) => u.id === id);
-    if (!user) {
-      return {
-        isError: true,
-        errorMessage: 'User was not found',
-        statusCode: HttpStatus.NOT_FOUND,
-      };
-    }
-
-    return {
-      data: user,
-      isError: false,
-    };
+  findOne(id: string): Promise<User | null> {
+    return this.usersRepository.findOneBy({ id });
   }
 
   updateUserPassword(
     id: string,
-    updatePasswordDto: UpdatePasswordDto,
-  ): UserResponse {
-    if (!validate(id)) {
-      return {
-        isError: true,
-        errorMessage: 'Id is invalid',
-        statusCode: HttpStatus.BAD_REQUEST,
-      };
-    }
-    const user: User = this.users.find((u) => u.id === id);
-    if (!user) {
-      return {
-        isError: true,
-        errorMessage: 'User was not found',
-        statusCode: HttpStatus.NOT_FOUND,
-      };
-    }
-    if (user.password !== updatePasswordDto.oldPassword) {
-      return {
-        isError: true,
-        errorMessage: 'Old password is wrong',
-        statusCode: HttpStatus.FORBIDDEN,
-      };
-    }
-
-    user.password = updatePasswordDto.newPassword;
-    user.version++;
-    user.updatedAt = Date.now();
-
-    return {
-      isError: false,
-      data: user,
-    };
+    newPassword: string,
+  ): Promise<UpdateResult> {
+    return this.usersRepository.update({id: id}, {password: newPassword})
   }
 
-  deleteUser(id: string): UserResponse {
-    if (!validate(id)) {
-      return {
-        isError: true,
-        errorMessage: 'Id is invalid',
-        statusCode: HttpStatus.BAD_REQUEST,
-      };
-    }
-
-    const user: User = this.users.find((u) => u.id === id);
-    if (!user) {
-      return {
-        isError: true,
-        errorMessage: 'User was not found',
-        statusCode: HttpStatus.NOT_FOUND,
-      };
-    }
-
-    this.users.splice(this.users.indexOf(user), 1);
-
-    return {
-      isError: false,
-    };
+  async remove(id: string): Promise<void> {
+    await this.usersRepository.delete(id);
   }
 }

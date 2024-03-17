@@ -8,75 +8,79 @@ import {
   Delete,
   HttpException,
   HttpCode,
+  HttpStatus,
+  ParseUUIDPipe,
+  UseInterceptors,
+  ClassSerializerInterceptor
 } from '@nestjs/common';
 import { CreateUserDto, UpdatePasswordDto } from '../dto/users.dto';
 import { UsersService } from '../services/users.service';
-import { User, UserResponse } from '../interfaces/user.interface';
+import { User } from '../interfaces/user.interface';
 
 @Controller('user')
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Get()
+  @UseInterceptors(ClassSerializerInterceptor)
   async findAll(): Promise<User[]> {
-    return this.usersService.findAllUsers();
+    return this.usersService.findAll();
   }
 
   @Get(':id')
-  async findById(@Param('id') id: string): Promise<User> {
-    const userResponse: UserResponse = this.usersService.findByUserId(id);
-    if (userResponse.isError) {
-      throw new HttpException(
-        userResponse.errorMessage,
-        userResponse.statusCode,
-      );
+  @UseInterceptors(ClassSerializerInterceptor)
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<User> {
+    const user = await this.usersService.findOne(id);
+    if (!user) {
+      throw new HttpException('User was not found', HttpStatus.NOT_FOUND);
     }
 
-    return userResponse.data;
+    return user;
   }
 
   @Post()
+  @UseInterceptors(ClassSerializerInterceptor)
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    const userResponse: UserResponse =
-      this.usersService.createUser(createUserDto);
-    if (userResponse.isError) {
-      throw new HttpException(
-        userResponse.errorMessage,
-        userResponse.statusCode,
-      );
+    console.log(createUserDto);
+    if (!createUserDto.login) {
+      throw new HttpException('Login is required', HttpStatus.BAD_REQUEST);
     }
 
-    return userResponse.data;
+    if (!createUserDto.password) {
+      throw new HttpException('Password is required', HttpStatus.BAD_REQUEST);
+    }
+
+    return this.usersService.create(createUserDto)
   }
 
   @Put(':id')
+  @UseInterceptors(ClassSerializerInterceptor)
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() updatePasswordDto: UpdatePasswordDto,
   ): Promise<User> {
-    const userResponse: UserResponse = this.usersService.updateUserPassword(
-      id,
-      updatePasswordDto,
-    );
-    if (userResponse.isError) {
-      throw new HttpException(
-        userResponse.errorMessage,
-        userResponse.statusCode,
-      );
+    const user = await this.usersService.findOne(id);
+    if (!user) {
+      throw new HttpException('User was not found', HttpStatus.NOT_FOUND);
     }
 
-    return userResponse.data;
+    if (user.password !== updatePasswordDto.oldPassword) {
+      throw new HttpException('Old password is wrong', HttpStatus.FORBIDDEN);
+    }
+
+    await this.usersService.updateUserPassword(id, updatePasswordDto.newPassword);
+
+    return this.usersService.findOne(id);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  async deleteUser(@Param('id') id: string) {
-    const userResponse: UserResponse = this.usersService.deleteUser(id);
-    if (userResponse.isError) {
-      throw new HttpException(
-        userResponse.errorMessage,
-        userResponse.statusCode,
-      );
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
+    const user = await this.usersService.findOne(id);
+    if (!user) {
+      throw new HttpException('User was not found', HttpStatus.NOT_FOUND);
     }
+
+    return this.usersService.remove(id);
   }
 }

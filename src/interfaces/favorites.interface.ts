@@ -13,10 +13,3 @@ export interface FavoritesGetAllResponse {
   albums: Album[];
   tracks: Track[];
 }
-
-export interface FavoritesResponse {
-  isError: boolean;
-  errorMessage?: string;
-  message?: string;
-  statusCode?: number;
-}

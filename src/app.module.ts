@@ -13,6 +13,7 @@ import { User } from './entities/user.entity';
 import { Track } from './entities/track.entity';
 import { Album } from './entities/album.entity';
 import { Artist } from './entities/artist.entity';
+import { Favorite } from './entities/favorite.entity';
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { Artist } from './entities/artist.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        entities: [User, Track, Album, Artist],
+        entities: [User, Track, Album, Artist, Favorite],
         synchronize: true, // true shouldn't be used in production - otherwise you can lose production data
       }),
       inject: [ConfigService],

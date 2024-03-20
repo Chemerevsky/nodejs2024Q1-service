@@ -1,22 +1,28 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-
-export enum EntityType {
-    ALBUM = "album",
-    ARTIST = "artist",
-    TRACK = "track",
-}
+import { Entity, PrimaryGeneratedColumn, ManyToMany, JoinTable } from 'typeorm';
+import { Album } from "./album.entity"
+import { Artist } from "./artist.entity"
+import { Track } from "./track.entity"
 
 @Entity()
-export class Fav {
-  @Column()
-  userId: string;
+export class Favorite {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  @Column({
-    type: 'enum',
-    enum: EntityType,
+  @ManyToMany(() => Album, (album) => album.id, {
+    onDelete: 'CASCADE'
   })
-  entityType: EntityType;
+  @JoinTable()
+  albums: Album[];
 
-  @Column()
-  entityId: string;
+  @ManyToMany(() => Artist, (artist) => artist.id, {
+    onDelete: 'CASCADE'
+  })
+  @JoinTable()
+  artists: Artist[]
+
+  @ManyToMany(() => Track, (track) => track.id, {
+    onDelete: 'CASCADE'
+  })
+  @JoinTable()
+  tracks: Track[]
 }

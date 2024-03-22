@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
+  ValidationPipe,
   UseInterceptors,
   ClassSerializerInterceptor
 } from '@nestjs/common';
@@ -40,8 +41,7 @@ export class UsersController {
 
   @Post()
   @UseInterceptors(ClassSerializerInterceptor)
-  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    console.log(createUserDto);
+  async create(@Body(new ValidationPipe()) createUserDto: CreateUserDto): Promise<User> {
     if (!createUserDto.login) {
       throw new HttpException('Login is required', HttpStatus.BAD_REQUEST);
     }
@@ -57,7 +57,7 @@ export class UsersController {
   @UseInterceptors(ClassSerializerInterceptor)
   async update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updatePasswordDto: UpdatePasswordDto,
+    @Body(new ValidationPipe()) updatePasswordDto: UpdatePasswordDto,
   ): Promise<User> {
     const user = await this.usersService.findOne(id);
     if (!user) {

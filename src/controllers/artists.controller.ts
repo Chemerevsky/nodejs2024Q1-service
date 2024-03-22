@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ArtistsService } from '../services/artists.service';
 import { Artist } from '../interfaces/artist.interface';
@@ -35,7 +36,7 @@ export class ArtistsController {
   }
 
   @Post()
-  async create(@Body() createArtistDto: CreateArtistDto): Promise<Artist> {
+  async create(@Body(new ValidationPipe()) createArtistDto: CreateArtistDto): Promise<Artist> {
     if (!createArtistDto.name) {
       throw new HttpException('Name is required', HttpStatus.BAD_REQUEST);
     }
@@ -50,7 +51,7 @@ export class ArtistsController {
   @Put(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateArtistDto: UpdateArtistDto,
+    @Body(new ValidationPipe()) updateArtistDto: UpdateArtistDto,
   ): Promise<Artist> {
     const artist = await this.artistsService.findOne(id);
     if (!artist) {
@@ -64,7 +65,7 @@ export class ArtistsController {
 
   @Delete(':id')
   @HttpCode(204)
-  async deleteUser(@Param('id', ParseUUIDPipe) id: string) {
+  async delete(@Param('id', ParseUUIDPipe) id: string) {
     const artist = await this.artistsService.findOne(id);
     if (!artist) {
       throw new HttpException('Artist was not found', HttpStatus.NOT_FOUND);

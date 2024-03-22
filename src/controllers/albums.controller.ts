@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
+  ValidationPipe,
 } from '@nestjs/common';
 import { AlbumsService } from '../services/albums.service';
 import { Album } from '../interfaces/album.interface';
@@ -35,7 +36,7 @@ export class AlbumsController {
   }
 
   @Post()
-  async create(@Body() createAlbumDto: CreateAlbumDto): Promise<Album> {
+  async create(@Body(new ValidationPipe()) createAlbumDto: CreateAlbumDto): Promise<Album> {
     if (!createAlbumDto.name) {
       throw new HttpException('Name is required', HttpStatus.BAD_REQUEST);
     }
@@ -54,7 +55,7 @@ export class AlbumsController {
   @Put(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateAlbumDto: UpdateAlbumDto,
+    @Body(new ValidationPipe()) updateAlbumDto: UpdateAlbumDto,
   ): Promise<Album> {
     const album = await this.albumsService.findOne(id);
     if (!album) {

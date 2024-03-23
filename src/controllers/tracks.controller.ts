@@ -36,7 +36,10 @@ export class TracksController {
   }
 
   @Post()
-  async create(@Body(new ValidationPipe({skipNullProperties: true})) createTrackDto: CreateTrackDto): Promise<Track> {
+  async create(
+    @Body(new ValidationPipe({ skipNullProperties: true }))
+    createTrackDto: CreateTrackDto,
+  ): Promise<Track> {
     if (!createTrackDto.name) {
       throw new HttpException('Name is required', HttpStatus.BAD_REQUEST);
     }
@@ -51,7 +54,8 @@ export class TracksController {
   @Put(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body(new ValidationPipe({skipNullProperties: true})) updateTrackDto: UpdateTrackDto,
+    @Body(new ValidationPipe({ skipNullProperties: true }))
+    updateTrackDto: UpdateTrackDto,
   ) {
     const track = await this.tracksService.findOne(id);
     if (!track) {

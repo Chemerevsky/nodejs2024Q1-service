@@ -16,7 +16,9 @@ export class TracksService {
     newTrack.name = createTrackDto.name;
     newTrack.duration = createTrackDto.duration;
     newTrack.albumId = createTrackDto.albumId ? createTrackDto.albumId : null;
-    newTrack.artistId = createTrackDto.artistId ? createTrackDto.artistId : null;
+    newTrack.artistId = createTrackDto.artistId
+      ? createTrackDto.artistId
+      : null;
 
     return this.tracksRepository.save(newTrack);
   }
@@ -30,7 +32,7 @@ export class TracksService {
   }
 
   update(id: string, updateTrackDto: UpdateTrackDto): Promise<UpdateResult> {
-    return this.tracksRepository.update({id: id}, {...updateTrackDto});
+    return this.tracksRepository.update({ id: id }, { ...updateTrackDto });
   }
 
   async remove(id: string): Promise<void> {

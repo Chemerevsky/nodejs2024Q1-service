@@ -15,7 +15,7 @@ export class ArtistsService {
     const newArtist: Artist = new Artist();
     newArtist.name = createArtistDto.name;
     newArtist.grammy = createArtistDto.grammy;
-  
+
     return this.artistsRepository.save(newArtist);
   }
 
@@ -28,7 +28,7 @@ export class ArtistsService {
   }
 
   update(id: string, updateArtistDto: UpdateArtistDto): Promise<UpdateResult> {
-    return this.artistsRepository.update({id: id}, {...updateArtistDto});
+    return this.artistsRepository.update({ id: id }, { ...updateArtistDto });
   }
 
   async remove(id: string): Promise<void> {

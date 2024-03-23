@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, VersionColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, VersionColumn } from 'typeorm';
 import { Exclude } from 'class-transformer';
 
 @Entity()
@@ -16,9 +16,9 @@ export class User {
   @VersionColumn()
   version: number;
 
-  @CreateDateColumn()
+  @Column({ type: 'bigint', nullable: false })
   createdAt: number;
 
-  @UpdateDateColumn()
+  @Column({ type: 'bigint', nullable: false })
   updatedAt: number;
 }

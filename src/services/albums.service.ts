@@ -15,8 +15,10 @@ export class AlbumsService {
     const newAlbum: Album = new Album();
     newAlbum.name = createAlbumDto.name;
     newAlbum.year = createAlbumDto.year;
-    newAlbum.artistId = createAlbumDto.artistId ? createAlbumDto.artistId : null;
-  
+    newAlbum.artistId = createAlbumDto.artistId
+      ? createAlbumDto.artistId
+      : null;
+
     return this.albumsRepository.save(newAlbum);
   }
 
@@ -29,7 +31,7 @@ export class AlbumsService {
   }
 
   update(id: string, updateAlbumDto: UpdateAlbumDto): Promise<UpdateResult> {
-    return this.albumsRepository.update({id: id}, {...updateAlbumDto});
+    return this.albumsRepository.update({ id: id }, { ...updateAlbumDto });
   }
 
   async remove(id: string): Promise<void> {

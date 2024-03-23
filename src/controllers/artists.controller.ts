@@ -36,7 +36,9 @@ export class ArtistsController {
   }
 
   @Post()
-  async create(@Body(new ValidationPipe()) createArtistDto: CreateArtistDto): Promise<Artist> {
+  async create(
+    @Body(new ValidationPipe()) createArtistDto: CreateArtistDto,
+  ): Promise<Artist> {
     if (!createArtistDto.name) {
       throw new HttpException('Name is required', HttpStatus.BAD_REQUEST);
     }

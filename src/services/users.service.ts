@@ -12,9 +12,12 @@ export class UsersService {
   ) {}
 
   create(createUserDto: CreateUserDto): Promise<User> {
+    const currentDate: number = Date.now();
     const user = new User();
     user.login = createUserDto.login;
     user.password = createUserDto.password;
+    user.createdAt = currentDate;
+    user.updatedAt = currentDate;
 
     return this.usersRepository.save(user);
   }
@@ -27,11 +30,11 @@ export class UsersService {
     return this.usersRepository.findOneBy({ id });
   }
 
-  updateUserPassword(
-    id: string,
-    newPassword: string,
-  ): Promise<UpdateResult> {
-    return this.usersRepository.update({id: id}, {password: newPassword})
+  updateUserPassword(id: string, newPassword: string): Promise<UpdateResult> {
+    return this.usersRepository.update(
+      { id: id },
+      { password: newPassword, updatedAt: Date.now() },
+    );
   }
 
   async remove(id: string): Promise<void> {

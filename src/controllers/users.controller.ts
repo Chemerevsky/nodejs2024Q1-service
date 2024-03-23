@@ -12,7 +12,7 @@ import {
   ParseUUIDPipe,
   ValidationPipe,
   UseInterceptors,
-  ClassSerializerInterceptor
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { CreateUserDto, UpdatePasswordDto } from '../dto/users.dto';
 import { UsersService } from '../services/users.service';
@@ -41,7 +41,9 @@ export class UsersController {
 
   @Post()
   @UseInterceptors(ClassSerializerInterceptor)
-  async create(@Body(new ValidationPipe()) createUserDto: CreateUserDto): Promise<User> {
+  async create(
+    @Body(new ValidationPipe()) createUserDto: CreateUserDto,
+  ): Promise<User> {
     if (!createUserDto.login) {
       throw new HttpException('Login is required', HttpStatus.BAD_REQUEST);
     }
@@ -50,7 +52,7 @@ export class UsersController {
       throw new HttpException('Password is required', HttpStatus.BAD_REQUEST);
     }
 
-    return this.usersService.create(createUserDto)
+    return this.usersService.create(createUserDto);
   }
 
   @Put(':id')
@@ -68,7 +70,10 @@ export class UsersController {
       throw new HttpException('Old password is wrong', HttpStatus.FORBIDDEN);
     }
 
-    await this.usersService.updateUserPassword(id, updatePasswordDto.newPassword);
+    await this.usersService.updateUserPassword(
+      id,
+      updatePasswordDto.newPassword,
+    );
 
     return this.usersService.findOne(id);
   }

@@ -36,7 +36,9 @@ export class AlbumsController {
   }
 
   @Post()
-  async create(@Body(new ValidationPipe()) createAlbumDto: CreateAlbumDto): Promise<Album> {
+  async create(
+    @Body(new ValidationPipe()) createAlbumDto: CreateAlbumDto,
+  ): Promise<Album> {
     if (!createAlbumDto.name) {
       throw new HttpException('Name is required', HttpStatus.BAD_REQUEST);
     }
@@ -46,7 +48,10 @@ export class AlbumsController {
     }
 
     if (!createAlbumDto.artistId === undefined) {
-      throw new HttpException('ArtistId should be defined', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'ArtistId should be defined',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     return this.albumsService.create(createAlbumDto);

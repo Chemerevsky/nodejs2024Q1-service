@@ -1,6 +1,12 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm';
-import { Artist } from "./artist.entity"
-import { Album } from "./album.entity"
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToOne,
+  JoinColumn,
+} from 'typeorm';
+import { Artist } from './artist.entity';
+import { Album } from './album.entity';
 
 @Entity()
 export class Track {
@@ -10,20 +16,20 @@ export class Track {
   @Column()
   name: string;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   artistId: string | null;
 
   @OneToOne(() => Artist, {
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   })
   @JoinColumn()
   artist: Artist;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   albumId: string | null;
-  
+
   @OneToOne(() => Album, {
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   })
   @JoinColumn()
   album: Album;

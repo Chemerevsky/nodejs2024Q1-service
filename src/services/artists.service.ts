@@ -1,133 +1,37 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
-import { Artist, ArtistResponse } from '../interfaces/artist.interface';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreateArtistDto, UpdateArtistDto } from '../dto/artists.dto';
-import { validate, v4 as createUuid } from 'uuid';
+import { Artist } from '../entities/artist.entity';
+import { Repository, UpdateResult } from 'typeorm';
 
 @Injectable()
 export class ArtistsService {
-  private readonly artists: Artist[] = [];
+  constructor(
+    @InjectRepository(Artist)
+    private artistsRepository: Repository<Artist>,
+  ) {}
 
-  create(createArtistDto: CreateArtistDto): ArtistResponse {
-    if (!createArtistDto.name) {
-      return {
-        isError: true,
-        statusCode: HttpStatus.BAD_REQUEST,
-        errorMessage: 'Name is required',
-      };
-    }
+  create(createArtistDto: CreateArtistDto): Promise<Artist> {
+    const newArtist: Artist = new Artist();
+    newArtist.name = createArtistDto.name;
+    newArtist.grammy = createArtistDto.grammy;
 
-    if (createArtistDto.grammy === undefined) {
-      return {
-        isError: true,
-        statusCode: HttpStatus.BAD_REQUEST,
-        errorMessage: 'Grammy is required',
-      };
-    }
-
-    const newArtist: Artist = {
-      id: createUuid(),
-      name: createArtistDto.name,
-      grammy: createArtistDto.grammy,
-    };
-    this.artists.push(newArtist);
-
-    return {
-      isError: false,
-      data: newArtist,
-    };
+    return this.artistsRepository.save(newArtist);
   }
 
-  findAll(): Artist[] {
-    return this.artists;
+  findAll(): Promise<Artist[]> {
+    return this.artistsRepository.find();
   }
 
-  findById(id: string): ArtistResponse {
-    const isValidId: boolean = validate(id);
-    if (!isValidId) {
-      return {
-        isError: true,
-        errorMessage: 'Id is invalid',
-        statusCode: HttpStatus.BAD_REQUEST,
-      };
-    }
-
-    const artist: Artist = this.artists.find((t) => t.id === id);
-    if (!artist) {
-      return {
-        isError: true,
-        errorMessage: 'Artist was not found',
-        statusCode: HttpStatus.NOT_FOUND,
-      };
-    }
-
-    return {
-      data: artist,
-      isError: false,
-    };
+  findOne(id: string): Promise<Artist | null> {
+    return this.artistsRepository.findOneBy({ id });
   }
 
-  update(id: string, updateArtistDto: UpdateArtistDto): ArtistResponse {
-    if (!validate(id)) {
-      return {
-        isError: true,
-        errorMessage: 'Id is invalid',
-        statusCode: HttpStatus.BAD_REQUEST,
-      };
-    }
-
-    const artist: Artist = this.artists.find((u) => u.id === id);
-    if (!artist) {
-      return {
-        isError: true,
-        errorMessage: 'Artist was not found',
-        statusCode: HttpStatus.NOT_FOUND,
-      };
-    }
-
-    for (const property in updateArtistDto) {
-      artist[property] = updateArtistDto[property];
-    }
-
-    return {
-      isError: false,
-      data: artist,
-    };
+  update(id: string, updateArtistDto: UpdateArtistDto): Promise<UpdateResult> {
+    return this.artistsRepository.update({ id: id }, { ...updateArtistDto });
   }
 
-  delete(id: string): ArtistResponse {
-    if (!validate(id)) {
-      return {
-        isError: true,
-        errorMessage: 'Id is invalid',
-        statusCode: HttpStatus.BAD_REQUEST,
-      };
-    }
-
-    const artist: Artist = this.artists.find((u) => u.id === id);
-    if (!artist) {
-      return {
-        isError: true,
-        errorMessage: 'Artist was not found',
-        statusCode: HttpStatus.NOT_FOUND,
-      };
-    }
-
-    this.artists.splice(this.artists.indexOf(artist), 1);
-
-    return {
-      isError: false,
-    };
-  }
-
-  findByIds(ids: string[]): Artist[] {
-    const artists: Artist[] = [];
-    ids.forEach((id) => {
-      const artistResponse: ArtistResponse = this.findById(id);
-      if (!artistResponse.isError) {
-        artists.push(artistResponse.data);
-      }
-    });
-
-    return artists;
+  async remove(id: string): Promise<void> {
+    await this.artistsRepository.delete(id);
   }
 }

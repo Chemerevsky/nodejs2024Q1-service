@@ -1,142 +1,40 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
-import { Album, AlbumResponse } from '../interfaces/album.interface';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreateAlbumDto, UpdateAlbumDto } from '../dto/albums.dto';
-import { validate, v4 as createUuid } from 'uuid';
+import { Album } from '../entities/album.entity';
+import { Repository, UpdateResult } from 'typeorm';
 
 @Injectable()
 export class AlbumsService {
-  private readonly albums: Album[] = [];
+  constructor(
+    @InjectRepository(Album)
+    private albumsRepository: Repository<Album>,
+  ) {}
 
-  create(createAlbumDto: CreateAlbumDto): AlbumResponse {
-    if (!createAlbumDto.name) {
-      return {
-        isError: true,
-        statusCode: HttpStatus.BAD_REQUEST,
-        errorMessage: 'Name is required',
-      };
-    }
+  create(createAlbumDto: CreateAlbumDto): Promise<Album> {
+    const newAlbum: Album = new Album();
+    newAlbum.name = createAlbumDto.name;
+    newAlbum.year = createAlbumDto.year;
+    newAlbum.artistId = createAlbumDto.artistId
+      ? createAlbumDto.artistId
+      : null;
 
-    if (!createAlbumDto.year) {
-      return {
-        isError: true,
-        statusCode: HttpStatus.BAD_REQUEST,
-        errorMessage: 'Year is required',
-      };
-    }
-
-    if (createAlbumDto.artistId === undefined) {
-      return {
-        isError: true,
-        statusCode: HttpStatus.BAD_REQUEST,
-        errorMessage: 'ArtistId should be defined',
-      };
-    }
-
-    const newAlbum: Album = {
-      id: createUuid(),
-      name: createAlbumDto.name,
-      year: createAlbumDto.year,
-      artistId: createAlbumDto.artistId,
-    };
-    this.albums.push(newAlbum);
-
-    return {
-      isError: false,
-      data: newAlbum,
-    };
+    return this.albumsRepository.save(newAlbum);
   }
 
-  findAll(): Album[] {
-    return this.albums;
+  findAll(): Promise<Album[]> {
+    return this.albumsRepository.find();
   }
 
-  findById(id: string): AlbumResponse {
-    const isValidId: boolean = validate(id);
-    if (!isValidId) {
-      return {
-        isError: true,
-        errorMessage: 'Id is invalid',
-        statusCode: HttpStatus.BAD_REQUEST,
-      };
-    }
-
-    const album: Album = this.albums.find((t) => t.id === id);
-    if (!album) {
-      return {
-        isError: true,
-        errorMessage: 'Album was not found',
-        statusCode: HttpStatus.NOT_FOUND,
-      };
-    }
-
-    return {
-      data: album,
-      isError: false,
-    };
+  findOne(id: string): Promise<Album | null> {
+    return this.albumsRepository.findOneBy({ id });
   }
 
-  update(id: string, updateAlbumDto: UpdateAlbumDto): AlbumResponse {
-    if (!validate(id)) {
-      return {
-        isError: true,
-        errorMessage: 'Id is invalid',
-        statusCode: HttpStatus.BAD_REQUEST,
-      };
-    }
-
-    const album: Album = this.albums.find((u) => u.id === id);
-    if (!album) {
-      return {
-        isError: true,
-        errorMessage: 'Album was not found',
-        statusCode: HttpStatus.NOT_FOUND,
-      };
-    }
-
-    for (const property in updateAlbumDto) {
-      album[property] = updateAlbumDto[property];
-    }
-
-    return {
-      isError: false,
-      data: album,
-    };
+  update(id: string, updateAlbumDto: UpdateAlbumDto): Promise<UpdateResult> {
+    return this.albumsRepository.update({ id: id }, { ...updateAlbumDto });
   }
 
-  delete(id: string): AlbumResponse {
-    if (!validate(id)) {
-      return {
-        isError: true,
-        errorMessage: 'Id is invalid',
-        statusCode: HttpStatus.BAD_REQUEST,
-      };
-    }
-
-    const album: Album = this.albums.find((u) => u.id === id);
-    if (!album) {
-      return {
-        isError: true,
-        errorMessage: 'Album was not found',
-        statusCode: HttpStatus.NOT_FOUND,
-      };
-    }
-
-    this.albums.splice(this.albums.indexOf(album), 1);
-
-    return {
-      isError: false,
-    };
-  }
-
-  findByIds(ids: string[]): Album[] {
-    const albums: Album[] = [];
-    ids.forEach((id) => {
-      const albumResponse: AlbumResponse = this.findById(id);
-      if (!albumResponse.isError) {
-        albums.push(albumResponse.data);
-      }
-    });
-
-    return albums;
+  async remove(id: string): Promise<void> {
+    await this.albumsRepository.delete(id);
   }
 }

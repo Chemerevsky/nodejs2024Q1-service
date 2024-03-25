@@ -1,0 +1,41 @@
+version: '3.7'
+services:
+  postgres:
+    container_name: postgres_db
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
+    env_file: .env
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    networks:
+      - mynetwork
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: ${DB_POSTGRES_HOST_AUTH_METHOD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    container_name: myapp
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    env_file: .env
+    depends_on:
+      - postgres
+    restart: on-failure
+    ports:
+      - ${PORT}:${PORT}
+    networks:
+      - mynetwork
+  
+networks:
+  mynetwork:
+    driver: bridge
+
+volumes:
+  postgres_data:

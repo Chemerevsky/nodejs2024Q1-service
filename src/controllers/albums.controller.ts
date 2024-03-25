@@ -8,9 +8,12 @@ import {
   Delete,
   HttpException,
   HttpCode,
+  HttpStatus,
+  ParseUUIDPipe,
+  ValidationPipe,
 } from '@nestjs/common';
 import { AlbumsService } from '../services/albums.service';
-import { Album, AlbumResponse } from '../interfaces/album.interface';
+import { Album } from '../interfaces/album.interface';
 import { CreateAlbumDto, UpdateAlbumDto } from '../dto/albums.dto';
 
 @Controller('album')
@@ -23,60 +26,60 @@ export class AlbumsController {
   }
 
   @Get(':id')
-  async findById(@Param('id') id: string): Promise<Album> {
-    const albumResponse: AlbumResponse = this.albumsService.findById(id);
-    if (albumResponse.isError) {
-      throw new HttpException(
-        albumResponse.errorMessage,
-        albumResponse.statusCode,
-      );
+  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Album> {
+    const album = await this.albumsService.findOne(id);
+    if (!album) {
+      throw new HttpException('Album was not found', HttpStatus.NOT_FOUND);
     }
 
-    return albumResponse.data;
+    return album;
   }
 
   @Post()
-  async create(@Body() createAlbumDto: CreateAlbumDto): Promise<Album> {
-    const albumResponse: AlbumResponse =
-      this.albumsService.create(createAlbumDto);
-    if (albumResponse.isError) {
+  async create(
+    @Body(new ValidationPipe()) createAlbumDto: CreateAlbumDto,
+  ): Promise<Album> {
+    if (!createAlbumDto.name) {
+      throw new HttpException('Name is required', HttpStatus.BAD_REQUEST);
+    }
+
+    if (!createAlbumDto.year) {
+      throw new HttpException('Duration is required', HttpStatus.BAD_REQUEST);
+    }
+
+    if (!createAlbumDto.artistId === undefined) {
       throw new HttpException(
-        albumResponse.errorMessage,
-        albumResponse.statusCode,
+        'ArtistId should be defined',
+        HttpStatus.BAD_REQUEST,
       );
     }
 
-    return albumResponse.data;
+    return this.albumsService.create(createAlbumDto);
   }
 
   @Put(':id')
   async update(
-    @Param('id') id: string,
-    @Body() updateAlbumDto: UpdateAlbumDto,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body(new ValidationPipe()) updateAlbumDto: UpdateAlbumDto,
   ): Promise<Album> {
-    const albumResponse: AlbumResponse = this.albumsService.update(
-      id,
-      updateAlbumDto,
-    );
-    if (albumResponse.isError) {
-      throw new HttpException(
-        albumResponse.errorMessage,
-        albumResponse.statusCode,
-      );
+    const album = await this.albumsService.findOne(id);
+    if (!album) {
+      throw new HttpException('Album was not found', HttpStatus.NOT_FOUND);
     }
 
-    return albumResponse.data;
+    await this.albumsService.update(id, updateAlbumDto);
+
+    return this.albumsService.findOne(id);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  async deleteUser(@Param('id') id: string) {
-    const albumResponse: AlbumResponse = this.albumsService.delete(id);
-    if (albumResponse.isError) {
-      throw new HttpException(
-        albumResponse.errorMessage,
-        albumResponse.statusCode,
-      );
+  async deleteUser(@Param('id', ParseUUIDPipe) id: string) {
+    const album = await this.albumsService.findOne(id);
+    if (!album) {
+      throw new HttpException('Album was not found', HttpStatus.NOT_FOUND);
     }
+
+    return this.albumsService.remove(id);
   }
 }

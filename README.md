@@ -1,72 +1,31 @@
-# Home Library Service
+#  Rest Service
 
-## Prerequisites
+## Steps to get started:
+1. Clone repository from dev2 branch
+2. Install dependencies with `npm i`
+3. Create `.env` file _(./.env)_ based on example from `.env.example`
 
-- Git - [Download & Install Git](https://git-scm.com/downloads).
-- Node.js - [Download & Install Node.js](https://nodejs.org/en/download/) and the npm package manager.
+### Running with Docker
+1. Install and execute [Docker Desktop](https://docs.docker.com/engine/install/)  
+2. Execute command `docker-compose up --build`
 
-## Downloading
+### Running without Docker
+_If you haven't encountered any issues with Docker, you can skip this step_
 
-```
-git clone {repository URL}
-```
+1. Install [Postgres](https://www.postgresql.org/download/)
+2. Create a database with name `rs-node-2024q1-nest` (use PostgreSQL 16).
+3. Apply migrations `npm run migration:update`
+4. Start the server `npm start`\
+---
+## Testing:
 
-## Installing NPM modules
-
-```
-npm install
-```
-
-## Running application
-
-```
-npm start
-```
-
-After starting the app on port (4000 as default) you can open
-in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
-For more information about OpenAPI/Swagger please visit https://swagger.io/.
-
-## Testing
-
-After application running open new terminal and enter:
-
-To run all tests without authorization
-
+Run the tests:
 ```
 npm run test
 ```
 
-To run only one of all test suites
-
-```
-npm run test -- <path to suite>
-```
-
-To run all test with authorization
-
-```
-npm run test:auth
-```
-
-To run only specific test suite with authorization
-
-```
-npm run test:auth -- <path to suite>
-```
-
-### Auto-fix and format
-
+---
+## Format:
 ```
 npm run lint
 ```
-
-```
-npm run format
-```
-
-### Debugging in VSCode
-
-Press <kbd>F5</kbd> to debug.
-
-For more information, visit: https://code.visualstudio.com/docs/editor/debugging

@@ -15,6 +15,7 @@ services:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: ${DB_POSTGRES_HOST_AUTH_METHOD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
